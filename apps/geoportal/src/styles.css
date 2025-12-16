@@ -116,9 +116,9 @@ html {
 }
 
 /* Fix Tailwind's .collapse overriding Bootstrap's accordion collapse. */
-/* .collapse.show {
+.collapse.show {
   visibility: visible;
-} */
+}
 /* Provoke affected projects to run */
 .test-temp-class {
   background-color: red;
