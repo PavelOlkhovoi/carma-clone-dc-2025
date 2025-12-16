@@ -71,7 +71,7 @@ jobs:
         id: setSHAs
         uses: nrwl/nx-set-shas@v4
         with:
-          main-branch-name: ${{ steps.extract_branch.outputs.branch }}
+          main-branch-name: ${{ github.event.pull_request.base.ref }}
 
       - run: |
           echo "BASE: ${{ steps.setSHAs.outputs.base }}"
