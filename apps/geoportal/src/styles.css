@@ -115,7 +115,11 @@ html {
   display: inline;
 }
 
-/* Fix Tailwind's .collapse overriding Bootstrap's accordion collapse */
+/* Fix Tailwind's .collapse overriding Bootstrap's accordion collapse. */
 .collapse.show {
   visibility: visible;
+}
+/* Provoke affected projects to run */
+.test-temp-class {
+  background-color: red;
 }
