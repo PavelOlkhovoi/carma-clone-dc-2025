@@ -116,6 +116,10 @@ html {
 }
 
 /* Fix Tailwind's .collapse overriding Bootstrap's accordion collapse */
-.collapse.show {
+/* .collapse.show {
   visibility: visible;
+} */
+
+.temp-class-to-debug {
+  background-color: red;
 }
