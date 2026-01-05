@@ -119,11 +119,11 @@ jobs:
         if: failure() && !cancelled()
         run: |
           echo "Full test_output.log:"
-          echo "Failure lines found:"
-          grep -E '^  +\[chrome\] ›' test_output.log 2>/dev/null || echo "No failure lines found"
+          echo "Failure summary section:"
+          awk '/[0-9]+ failed$/,/[0-9]+ passed/' test_output.log 2>/dev/null || echo "No failure section found"
 
-          # Extract failed tests from Playwright summary (lines with "    [chrome] ›")
-          FAILED_TESTS=$(grep -E '^  +\[chrome\] ›' test_output.log 2>/dev/null | grep -o "[a-zA-Z0-9_-]*\.spec\.ts" | sort -u | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+          # Extract failed tests - use awk to get lines between "failed" and "passed" in the summary
+          FAILED_TESTS=$(awk '/[0-9]+ failed$/,/[0-9]+ passed/' test_output.log 2>/dev/null | grep -o "[a-zA-Z0-9_-]*\.spec\.ts" | sort -u | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
           # FAILED_TESTS=$(grep -A20 "failed" test_output.log | grep -B20 "flaky" | sed '$d' | grep -o "[a-zA-Z0-9_-]*\.spec\.ts" | sort -u | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
 
           # Create grep pattern from failed tests (fallback to live/ if no tests found)
