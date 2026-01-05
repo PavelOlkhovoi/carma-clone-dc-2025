@@ -119,10 +119,11 @@ jobs:
         if: failure() && !cancelled()
         run: |
           echo "Full test_output.log:"
-          # grep -A20 "failed" test_output.log | grep -o "[a-zA-Z0-9_-]*\.spec\.ts" | sort -u
-          grep -A20 "failed" test_output.log | grep -B20 "flaky" | sed '$d' | grep -o "[a-zA-Z0-9_-]*\.spec\.ts" | sort -u
-          # Extract only tests from failure lines (lines starting with "N)")
-          FAILED_TESTS=$(grep '^\s*[0-9]\+)' test_output.log 2>/dev/null | grep -o "[a-zA-Z0-9_-]*\.spec\.ts" | sort -u | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+          echo "Failure lines found:"
+          grep -E '^[0-9]+\) \[' test_output.log 2>/dev/null || echo "No failure lines found"
+
+          # Extract only tests from failure lines (lines starting with "N) [")
+          FAILED_TESTS=$(grep -E '^[0-9]+\) \[' test_output.log 2>/dev/null | grep -o "[a-zA-Z0-9_-]*\.spec\.ts" | sort -u | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
           # FAILED_TESTS=$(grep -A20 "failed" test_output.log | grep -B20 "flaky" | sed '$d' | grep -o "[a-zA-Z0-9_-]*\.spec\.ts" | sort -u | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
 
           # Create grep pattern from failed tests (fallback to live/ if no tests found)
