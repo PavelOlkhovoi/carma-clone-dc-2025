@@ -23,6 +23,10 @@ on:
         required: false
         type: boolean
         default: false
+      single-test:
+        description: "Run single test (enter test file name without .spec.ts)"
+        required: false
+        type: string
 
 jobs:
   e2e:
@@ -71,36 +75,42 @@ jobs:
         run: npm install
 
       - name: Run E2E tests
-        if: github.event.inputs.live == 'true' || github.event.inputs.smoke == 'true' || github.event.inputs.flaky == 'true'
+        if: github.event.inputs.single-test != '' || github.event.inputs.live == 'true' || github.event.inputs.smoke == 'true' || github.event.inputs.flaky == 'true'
         run: |
           set -o pipefail
 
           # Build grep pattern dynamically based on selected inputs
           GREP_PATTERN=""
 
-          if [ "${{ github.event.inputs.live }}" == "true" ]; then
-            GREP_PATTERN="${GREP_PATTERN}live/"
-          fi
-
-          if [ "${{ github.event.inputs.smoke }}" == "true" ]; then
-            if [ -n "$GREP_PATTERN" ]; then
-              GREP_PATTERN="${GREP_PATTERN}|smoke/"
-            else
-              GREP_PATTERN="smoke/"
+          # Priority: single-test overrides all checkboxes
+          if [ -n "${{ github.event.inputs.single-test }}" ]; then
+            GREP_PATTERN="${{ github.event.inputs.single-test }}"
+          else
+            # Existing checkbox logic
+            if [ "${{ github.event.inputs.live }}" == "true" ]; then
+              GREP_PATTERN="${GREP_PATTERN}live/"
             fi
-          fi
 
-          if [ "${{ github.event.inputs.flaky }}" == "true" ]; then
-            if [ -n "$GREP_PATTERN" ]; then
-              GREP_PATTERN="${GREP_PATTERN}|flaky/"
-            else
-              GREP_PATTERN="flaky/"
+            if [ "${{ github.event.inputs.smoke }}" == "true" ]; then
+              if [ -n "$GREP_PATTERN" ]; then
+                GREP_PATTERN="${GREP_PATTERN}|smoke/"
+              else
+                GREP_PATTERN="smoke/"
+              fi
             fi
-          fi
 
-          # Fallback to all test types if none selected
-          if [ -z "$GREP_PATTERN" ]; then
-            GREP_PATTERN="/"
+            if [ "${{ github.event.inputs.flaky }}" == "true" ]; then
+              if [ -n "$GREP_PATTERN" ]; then
+                GREP_PATTERN="${GREP_PATTERN}|flaky/"
+              else
+                GREP_PATTERN="flaky/"
+              fi
+            fi
+
+            # Fallback to all test types if none selected
+            if [ -z "$GREP_PATTERN" ]; then
+              GREP_PATTERN="/"
+            fi
           fi
 
           echo "Running tests with pattern: $GREP_PATTERN"
