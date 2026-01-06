@@ -30,7 +30,7 @@ on:
 
 jobs:
   e2e:
-    name: "E2E Tests: ${{ github.event.inputs['project-name'] }}"
+    name: "E2E Tests: ${{ github.event.inputs['project-name'] }}${{ github.event.inputs['single-test'] != '' && format(' ({0})', github.event.inputs['single-test']) || '' }}"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
